@@ -1,0 +1,217 @@
+@bgColor: #3d3c3c;
+
+body {
+    font-family: Roboto;
+    margin: 0;
+    padding: 64px 0 0;
+    color: #FAAF40;
+    background-color: @bgColor;
+    background-image: url("https://www.transparenttextures.com/patterns/fabric-1-dark.png");
+}
+
+.header {
+    position: relative;
+    background-size: cover;
+    background-position: center bottom;
+}
+
+.flex {
+    display: flex;
+
+    &-center {
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    &-stretch-row {
+        align-items: stretch;
+        flex-direction: row;
+    }
+}
+
+.drop-shadow-container {
+    filter: drop-shadow(0px 2px 6px rgba(0,0,0,0.5));
+}
+
+.ImageGrid {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 5px 0;
+
+    .Directory {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        margin: 5px;
+        background-color: rgba(244, 196, 125, 0.66);
+        h4 {
+            margin-bottom: 0;
+        }
+    }
+
+    .image-container {
+        margin: 5px 5px 0;
+        flex-grow: 1;
+        cursor: pointer;
+
+        .Image {
+            width: 100%;
+        }
+    }
+
+    .spacer {
+        flex: 1000000;
+    }
+}
+
+.breadcrumb {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    padding: 0 20px 0 20px;
+    z-index: 50;
+
+    &:not(:first-child) {
+        padding-left: 48px;
+    }
+
+    &:not(:last-child) {
+        margin-right: 0;
+
+        &:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: ~"calc(100% - 1px)";
+            width: 32px;
+            background-color: inherit;
+            -webkit-clip-path: polygon(100% 50%, 0 0, 0 100%);
+            clip-path: polygon(100% 50%, 0 0, 0 100%);
+        }
+    }
+}
+
+.Image {
+    canvas {
+        object-fit: contain;
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    &.fullscreen {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+
+        &.preview {
+            canvas {
+                width: 100%;
+            }
+        }
+    }
+
+    &:not(.fullscreen) {
+        canvas {
+            width: 100%;
+        }
+    }
+
+    &.loading {
+        position: relative;
+
+        &:before {
+            content: attr(title);
+            position: absolute;
+            padding: 5px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        &:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            border-radius: 100%;
+            border: 0 solid #607D8B;
+            opacity: 0.7;
+            z-index: 1;
+            animation: imageLoading 1.2s infinite ease-in;
+        }
+    }
+}
+@keyframes imageLoading {
+    0% {
+        width: 0;
+        height: 0;
+        border-width: 0;
+    }
+
+    66% {
+        width: 0;
+        height: 0;
+        border-width: 30px;
+    }
+
+    100% {
+        width: 60px;
+        height: 60px;
+        border-width: 0;
+    }
+}
+
+.fullscreen-container {
+    position: absolute;
+    bottom: 0;
+    top: 64px;
+    left: 0;
+    right: 0;
+
+    &-arrow {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        font-size: 80px;
+        cursor: pointer;
+        padding: 0 10px;
+        opacity: 0.3;
+
+        &:hover {
+            opacity: 1;
+        }
+
+        &-left {
+            left: 0;
+        }
+
+        &-right {
+            right: 0;
+        }
+    }
+}
+
+.navbar {
+    position: fixed !important;
+    box-shadow: none !important;
+    top: 0;
+}
