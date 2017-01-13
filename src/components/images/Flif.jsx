@@ -45,10 +45,10 @@ class Flif extends React.PureComponent {
     loadThumbnail() {
         let _self = this;
         this.quality = 0.1;
-        const targetHeight = Math.round(300 / this.props.file.width * this.props.file.height);
+        const targetWidth = Math.round(180 / this.props.file.height * this.props.file.width);
         this.loadFromCache(this.src, {
-            width: 300,
-            height: targetHeight,
+            width: targetWidth,
+            height: 180,
             quality: this.quality,
             thumbnail: true
         }, function(err, blob) {

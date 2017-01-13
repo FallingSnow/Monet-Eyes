@@ -16,13 +16,13 @@ class FullScreenImage extends React.PureComponent {
             _self.setState({
                 imageComponents: _self.state.imageComponents.concat([image])
             });
-            if (image.props.file.prev) {
-                _self.processPath(image.props.file.prev, function(image) {
-                    _self.setState({
-                        imageComponents: _self.state.imageComponents.concat([image])
-                    });
-                });
-            }
+            // if (image.props.file.prev) {
+            //     _self.processPath(image.props.file.prev, function(image) {
+            //         _self.setState({
+            //             imageComponents: _self.state.imageComponents.concat([image])
+            //         });
+            //     });
+            // }
         });
     }
     getImageData(src, cb) {
@@ -39,6 +39,7 @@ class FullScreenImage extends React.PureComponent {
     processPath(path, cb) {
         let _self = this;
         this.getImageData(path, function(file) {
+            console.log(file)
             if (file.name.endsWith('.flif')) {
                 let flif = <Flif fullscreen={true} key={file.name} quality={_self.props.quality} file={file}/>;
                 cb(flif);
