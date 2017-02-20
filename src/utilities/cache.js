@@ -13,10 +13,18 @@ class Cache {
     }
 
     writeFile(src, blob, cb = function() {}) {
+        if (typeof src !== 'string')
+            return console.error('First argument [src] must be of type string.');
+        if (typeof blob !== 'object')
+            return console.error('Second argument [blob] must be of type object.');
+
         console.debug('[Cache] Caching', src);
         this.cache.setItem(src, blob, cb);
     }
     retrieveFile(src, cb) {
+        if (typeof src !== 'string')
+            return console.error('First argument [src] must be of type string.');
+
         console.debug('[Cache] Retrieving', src);
         this.cache.getItem(src, function(err, blob) {
             if (err) {

@@ -2,9 +2,14 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {push} from 'react-router-redux';
-import Flif from './images/Flif.jsx';
-import Directory from './imagegrid/Directory.jsx';
-import Unknown from './imagegrid/Unknown.jsx';
+import Flif from './modules/Flif.jsx';
+import Jpeg from './modules/Jpeg.jsx';
+import Directory from './modules/Directory.jsx';
+import Unknown from './modules/Unknown.jsx';
+
+import ss from 'socket.io-stream';
+import streamToBlob from 'stream-to-blob';
+import peek from 'buffer-peek-stream';
 
 class ImageGrid extends React.PureComponent {
     constructor(props) {
@@ -18,52 +23,84 @@ class ImageGrid extends React.PureComponent {
     componentWillMount() {
         this.loadDirectory(this.props.directory);
     }
+    makeBlob(stream, cb) {
+        peek(stream, 65536, function(err, data, outputStream) {
+            if (err)
+                console.error('Could not peek stream:', err);
+
+            if (String(data).startsWith('ERROR'))
+                return console.error(String(data).substr(5))
+
+            streamToBlob(outputStream, f.mime, (err, blob) => {
+                if (err)
+                    return console.error(err);
+                console.log(blob)
+            });
+        });
+    }
     loadDirectory(directory) {
         console.debug('Getting list of directory:', directory);
         let _self = this;
-        this.props.socket.emit('listDirectory', directory, function(err, list) {
+        this.props.socket.emit('file.metadata', directory, function(err, list) {
             if (err)
-                throw err;
-
+                return console.error(err);
+                
             console.debug('[React] Directory list:', list);
+            _self.props.socket.emit('file.metadata', list.content.list, (err, files) => {
+                console.log(err, files)
 
-            let files = [],
-                directories = [];
-            for (let fileIndex in list) {
-                let file = list[fileIndex];
-                if (file.type === 'file') {
-                    switch (file.extension) {
-                        case '.flif':
-                            {
+                let renderables = {
+                    files: [],
+                    directories: []
+                };
 
-                                let width = file.width * _self.props.defaultImgHeight / file.height;
-                                files.push(
-                                    <div className="image-container" key={fileIndex} style={{
-                                        width,
-                                        flexGrow: width
-                                    }} onTouchTap={() => _self.props.goTo(file.path)}>
-                                        <Flif style={{
-                                            width: 100 + '%'
-                                        }} quality={200} thumbnail={true} file={file}/>
-                                    </div>
-                                );
+                for (let f of files) {
 
-                                break;
-                            }
-                        default:
-                            {
-                                console.warn('[React] Unknown file format:', file.extension);
-                                break;
-                            }
+                    if (f.type === 'file') {
+                        switch (f.mime) {
+                            case 'image/jpeg':
+                                {
+                                    let width = f.metadata.width * _self.props.defaultImgHeight / f.metadata.height;
+                                    renderables.files.push(
+                                        <div className="block-container" key={f.path} style={{
+                                            width,
+                                            flexGrow: width
+                                        }} onTouchTap={() => _self.props.goTo(f.path)}>
+                                            <Jpeg style={{
+                                                width: 100 + '%'
+                                            }} quality={200} thumbnail={true} file={f}/>
+                                        </div>
+                                    );
+                                    break;
+                                }
+                                // default:
+                                //     {
+                                //         renderables.files.push(
+                                //             <div className="block-container" key={f.path} style={{
+                                //                 width: _self.props.defaultImgHeight,
+                                //                 flexGrow: _self.props.defaultImgHeight
+                                //             }} onTouchTap={() => _self.props.goTo(f.path)}>
+                                //                 <Unknown file={f}/>
+                                //             </div>
+                                //         )
+                                //         console.warn('[React] Unknown file format:', f.path);
+                                //         break;
+                                //     }
+                        }
+                    } else if (f.type === 'directory') {
+                        renderables.directories.push(
+                            <div className="block-container" key={f.path} style={{
+                                width: _self.props.defaultImgHeight,
+                                flexGrow: _self.props.defaultImgHeight
+                            }}>
+                                <Directory key={f.path} directory={f}/>
+                            </div>
+                        )
                     }
-                } else if (file.type === 'directory') {
-                    directories.push(<Directory style={{
-                        width: _self.props.defaultImgHeight,
-                        flexGrow: _self.props.defaultImgHeight
-                    }} key={fileIndex} directory={file}/>)
                 }
-            }
-            _self.setState({files, directories});
+
+                _self.setState(renderables);
+            });
         });
     }
     state = {}

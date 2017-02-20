@@ -168,9 +168,7 @@ class Flif extends React.PureComponent {
         const heightScale = this.getLowestScaling(nativeHeight, targetHeight);
         return Math.min(widthScale, heightScale);
     }
-    decodeWebWorker(buffer = this.buffer) {
-        let _self = this;
-
+    getDimensionsFromBuffer(buffer) {
         const dimensionsMetadata = new Uint8Array(buffer, 5, 20);
 
         let position = 0;
@@ -193,6 +191,11 @@ class Flif extends React.PureComponent {
             width: readBigEndianVarint() + 1,
             height: readBigEndianVarint() + 1
         };
+    }
+    decodeWebWorker(buffer = this.buffer) {
+        let _self = this;
+
+        this.getDimensionsFromBuffer(buffer);
 
         let options = {
             action: 'decode',
@@ -213,47 +216,60 @@ class Flif extends React.PureComponent {
         let targetWidth = this.originalDimensions.width * (1 / options.scale);
         let targetHeight = this.originalDimensions.height * (1 / options.scale);
 
-        this.props.FlifDecodeManager.requestWorker(function(worker) {
-
-            // Create preview decode only if height > 400 and width > 711
-            if (_self.props.fullscreen) {
-                _self.setState({preview: true});
-                worker.postMessage({action: 'decode', buffer, scale: 128, preview: true});
+        this.props.FlifDecodeManager.decode(buffer, options).then((imageData) => {
+            _self.updateCanvas(imageData);
+            let attributes = {
+                width: imageData.width,
+                height: imageData.height,
+                quality: _self.quality
+            };
+            if (_self.props.thumbnail) {
+                attributes.thumbnail = true;
             }
-
-            worker.postMessage(options, [buffer]);
-            worker.onmessage = function(event) {
-                let progress = event.data.progress;
-                let width = progress.frames[0].width;
-                let height = progress.frames[0].height;
-                let imageData = new ImageData(new Uint8ClampedArray(progress.frames[0].data), width, height);
-
-                if (!event.data.preview)
-                    _self.setState({preview: false});
-
-                _self.updateCanvas(imageData, width, height);
-
-                if (event.data.preview)
-                    return;
-
-                _self.props.FlifDecodeManager.releaseWorker(worker);
-                let attributes = {
-                    width,
-                    height,
-                    quality: _self.quality
-                };
-                if (_self.props.thumbnail) {
-                    attributes.thumbnail = true;
-                }
-                _self.cacheCanvas(_self.src, attributes);
-            }
+            _self.cacheCanvas(_self.src, attributes);
         });
+
+        // this.props.FlifDecodeManager.requestWorker(function(worker) {
+        //
+        //     // Create preview decode only if height > 400 and width > 711
+        //     if (_self.props.fullscreen) {
+        //         _self.setState({preview: true});
+        //         worker.postMessage({action: 'decode', buffer, scale: 128, preview: true});
+        //     }
+        //
+        //     worker.postMessage(options, [buffer]);
+        //     worker.onmessage = function(event) {
+        //         let progress = event.data.progress;
+        //         let width = progress.frames[0].width;
+        //         let height = progress.frames[0].height;
+        //         let imageData = new ImageData(new Uint8ClampedArray(progress.frames[0].data), width, height);
+        //
+        //         if (!event.data.preview)
+        //             _self.setState({preview: false});
+        //
+        //         _self.updateCanvas(imageData, width, height);
+        //
+        //         if (event.data.preview)
+        //             return;
+        //
+        //         _self.props.FlifDecodeManager.releaseWorker(worker);
+        //         let attributes = {
+        //             width,
+        //             height,
+        //             quality: _self.quality
+        //         };
+        //         if (_self.props.thumbnail) {
+        //             attributes.thumbnail = true;
+        //         }
+        //         _self.cacheCanvas(_self.src, attributes);
+        //     }
+        // });
     }
-    updateCanvas(imagedata, width, height) {
+    updateCanvas(imagedata) {
         let c = this.refs.canvas,
             ctx = c.getContext('2d');
-        c.width = width;
-        c.height = height;
+        c.width = imagedata.width;
+        c.height = imagedata.height;
         this.setState({loading: false});
         if (imagedata instanceof window.Image) {
             ctx.drawImage(imagedata, 0, 0);

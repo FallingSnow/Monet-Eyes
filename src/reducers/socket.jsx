@@ -1,7 +1,5 @@
 import PackageConfig from '../../package.json';
 import io from 'socket.io-client';
-import 'console.style';
-const c = console.colors;
 
 let socket = io(PackageConfig.target.host + ':' + PackageConfig.target.port);
 socket.on('connect', function() {
@@ -20,7 +18,7 @@ socket.on('connect', function() {
     });
 });
 
-const requireAuthentication = ['listDirectory', 'fileSize', 'fileRead', 'fileInfo'];
+const requireAuthentication = ['file.metadata', 'file.read', 'fileSize', 'fileRead', 'fileInfo'];
 let pendingAuthentication = [];
 
 socket.oldEmit = socket.emit;

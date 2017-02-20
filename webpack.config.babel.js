@@ -11,7 +11,7 @@ const config = {
 
     output: {
         path: path.resolve(__dirname, "build"),
-        publicPath: '/',
+        publicPath: '',
         filename: 'bundle.js'
     },
 
@@ -87,8 +87,8 @@ const config = {
         colors: true
     },
 
-    devtool: ENV === 'production' ? 'source-map' : 'cheap-module-eval-source-map',
-    // devtool: '#inline-source-map',
+    // devtool: ENV === 'production' ? 'source-map' : 'cheap-module-eval-source-map',
+    devtool: '#inline-source-map',
 
     devServer: {
         port: process.env.PORT || 8080,

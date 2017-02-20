@@ -48,7 +48,7 @@ let DevTools,
     disableDevTools = false;
 if (process.env.NODE_ENV === 'development') {
     DevTools = createDevTools(
-        <DockMonitor toggleVisibilityKey="ctrl-h" changePositionKey="ctrl-q">
+        <DockMonitor toggleVisibilityKey="ctrl-h" changePositionKey="ctrl-q" defaultIsVisible={false}>
             <LogMonitor theme="tomorrow" preserveScrollTop={false}/>
         </DockMonitor>
     );
@@ -60,7 +60,7 @@ const history = syncHistoryWithStore(initializedHistory, store);
 import App from './App.jsx';
 import Home from './Home.jsx';
 import FullScreenImage from './FullScreenImage.jsx';
-import Directory from './Directory.jsx';
+import DirectoryView from './DirectoryView.jsx';
 import NotFound from './NotFound.jsx';
 
 export default class Main extends React.PureComponent {
@@ -81,9 +81,10 @@ export default class Main extends React.PureComponent {
                     <MuiThemeProvider muiTheme={muiTheme}>
                         <Router history={history}>
                             <Route path="/" component={App}>
-                                <IndexRoute component={Directory}/>
+                                <IndexRoute component={DirectoryView}/>
                                 <Route path="**.flif" component={FullScreenImage}/>
-                                <Route path="*" component={Directory}/>
+                                <Route path="**.jpg" component={FullScreenImage}/>
+                                <Route path="*" component={DirectoryView}/>
                             </Route>
                             <Route path='*' component={NotFound}/>
                         </Router>

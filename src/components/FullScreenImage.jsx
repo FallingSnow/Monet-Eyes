@@ -2,7 +2,8 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {push} from 'react-router-redux';
-import Flif from './images/Flif.jsx';
+import Flif from './modules/Flif.jsx';
+import Jpeg from './modules/Jpeg.jsx';
 
 class FullScreenImage extends React.PureComponent {
     constructor(props) {
@@ -39,12 +40,18 @@ class FullScreenImage extends React.PureComponent {
     processPath(path, cb) {
         let _self = this;
         this.getImageData(path, function(file) {
-            console.log(file)
-            if (file.name.endsWith('.flif')) {
-                let flif = <Flif fullscreen={true} key={file.name} quality={_self.props.quality} file={file}/>;
-                cb(flif);
-            } else {
-                console.warn('Unknown image file type', file.extension);
+            switch (file.extension) {
+                case '.flif':
+                    cb(<Flif fullscreen={true} key={file.name} quality={_self.props.quality} file={file}/>);
+                    break;
+                case '.jpg':
+                case 'jpeg':
+                    cb(<Jpeg fullscreen={true} key={file.name} file={file}/>);
+                    break;
+
+                default:
+                    console.warn('Unknown image file type', file.extension);
+                    break;
             }
         });
     }

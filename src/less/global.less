@@ -4,7 +4,7 @@ body {
     font-family: Roboto;
     margin: 0;
     padding: 64px 0 0;
-    color: #FAAF40;
+    color: lightgrey;
     background-color: @bgColor;
     background-image: url("https://www.transparenttextures.com/patterns/fabric-1-dark.png");
 }
@@ -46,15 +46,16 @@ body {
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        margin: 5px;
+        height: 100%;
         background-color: rgba(244, 196, 125, 0.66);
+
         h4 {
             margin-bottom: 0;
         }
     }
 
-    .image-container {
-        margin: 5px 5px 0;
+    .block-container {
+        margin: 5px;
         flex-grow: 1;
         cursor: pointer;
 
@@ -72,7 +73,7 @@ body {
     cursor: pointer;
     display: inline-block;
     position: relative;
-    padding: 0 20px 0 20px;
+    padding: 0 20px;
     z-index: 50;
 
     &:not(:first-child) {
@@ -93,6 +94,41 @@ body {
             -webkit-clip-path: polygon(100% 50%, 0 0, 0 100%);
             clip-path: polygon(100% 50%, 0 0, 0 100%);
         }
+    }
+}
+
+.Unknown {
+    position: relative;
+    background-color: #545454;
+    color: darkgrey;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    padding-bottom: 28px;
+    height: 100%;
+    box-sizing: border-box;
+
+    .icon {
+        font-size: 4em;
+    }
+    .extension {
+        display: block;
+        text-align: center;
+    }
+
+    .name {
+        display: block;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        direction: rtl;
+        padding: 3px 4px;
+        box-sizing: border-box;
     }
 }
 
@@ -126,6 +162,13 @@ body {
 
     &.loading {
         position: relative;
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            transform: scale(1.03);
+            filter: blur(5px;)
+        }
 
         &:before {
             content: attr(title);
@@ -152,7 +195,7 @@ body {
             border: 0 solid #607D8B;
             opacity: 0.7;
             z-index: 1;
-            animation: imageLoading 1.2s infinite ease-in;
+            // animation: imageLoading 1.2s infinite ease-in;
         }
     }
 }

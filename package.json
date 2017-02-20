@@ -7,10 +7,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "cross-env NODE_ENV=development webpack-dev-server --inline --hot --progress",
-    "build": "rm -r build/* || cross-env NODE_ENV=production webpack -p --progress"
+    "build": "rm -rf build/*; cross-env NODE_ENV=production webpack -p --progress"
   },
   "dependencies": {
     "animate.css": "^3.5.2",
+    "buffer-peek-stream": "^1.0.1",
     "canvas-webworker": "0.0.2",
     "classnames": "^2.2.5",
     "console.style": "^0.2.2",
@@ -20,6 +21,8 @@
     "font-awesome-webpack2": "0.0.6",
     "history": "^4.5.0",
     "idb.filesystem.js": "0.0.6",
+    "image-to-blob": "^0.2.0",
+    "inkjet": "^2.0.2",
     "jdataview": "^2.5.0",
     "json-loader": "^0.5.4",
     "localforage": "^1.4.3",
@@ -38,7 +41,10 @@
     "react-tap-event-plugin": "^2.0.1",
     "redux": "^3.6.0",
     "redux-async-initial-state": "^0.2.0",
-    "socket.io-client": "^1.7.2"
+    "socket.io-client": "^1.7.2",
+    "socket.io-stream": "^0.9.1",
+    "stream-browserify": "^2.0.1",
+    "stream-to-blob": "^1.0.0"
   },
   "devDependencies": {
     "babel": "^6.5.2",
@@ -80,6 +86,6 @@
   },
   "target": {
     "host": "http://localhost",
-    "port": 8000
+    "port": 7968
   }
 }
