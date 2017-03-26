@@ -5,6 +5,18 @@ import CopyWebpackPlugin from 'copy-webpack-plugin';
 
 const ENV = process.env.NODE_ENV || 'development';
 
+const imageLoaderSettings = {
+
+    progressive: true,
+    optipng: {
+        optimizationLevel: 7
+    },
+    pngquant: {
+        quality: '65-90',
+        speed: 4
+    }
+};
+
 const config = {
     context: path.resolve(__dirname, "src"),
     entry: './index.js',
@@ -16,31 +28,27 @@ const config = {
     },
 
     resolve: {
-        extensions: ['', '.jsx', '.js', '.json', '.less'],
-        modulesDirectories: [
-            path.resolve(__dirname, "node_modules"),
-            'node_modules'
-        ]
+        extensions: ['.jsx', '.js', '.json', '.less']
     },
 
     module: {
-        preLoaders: [{
+        rules: [{
+            enforce: 'pre',
             test: /\.jsx?$/,
             exclude: [/src\//, /node_modules\/intl-/],
-            loader: 'source-map'
-        }],
-        loaders: [{
+            loader: 'source-map-loader'
+        }, {
             test: /\.(xml|html|txt|md)$/,
-            loader: 'raw'
+            loader: 'raw-loader'
         }, {
             test: /\.(jpe?g|png|gif)$/i,
             loaders: [
-                'file?hash=sha512&digest=hex&name=/img/[hash].[ext]',
-                'image-webpack?bypassOnDebug&optimizationLevel=7&interlaced=false'
+                'file-loader?hash=sha512&digest=hex&name=/img/[hash].[ext]',
+                {
+                    loader: 'image-webpack-loader',
+                    query: imageLoaderSettings
+                }
             ]
-        }, {
-            test: /\.json$/,
-            loaders: ["json-loader"]
         }, {
             test: /\.css$/,
             loader: "style-loader!css-loader"
@@ -50,7 +58,7 @@ const config = {
         }, {
             test: /\.jsx?$/,
             exclude: /node_modules/,
-            loader: 'babel'
+            loader: 'babel-loader'
         }, {
             test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
             loader: "url-loader?limit=10000&minetype=application/font-woff"
@@ -62,14 +70,13 @@ const config = {
     },
 
     plugins: ([
-            new webpack.NoErrorsPlugin(),
-            new webpack.optimize.DedupePlugin(),
             new webpack.DefinePlugin({
-                'process.env': JSON.stringify({
-                    NODE_ENV: ENV
-                })
+                'process.env.NODE_ENV': JSON.stringify(ENV)
             }),
-            new CopyWebpackPlugin([ { from: '../third_party/libflif/*', flatten: true } ]),
+            new CopyWebpackPlugin([{
+                from: '../third_party/libflif/*',
+                flatten: true
+            }]),
             new HtmlWebpackPlugin({
                 template: './index.html',
                 minify: {
@@ -93,7 +100,6 @@ const config = {
     devServer: {
         port: process.env.PORT || 8080,
         host: '0.0.0.0',
-        colors: true,
         publicPath: '/',
         contentBase: './src',
         historyApiFallback: true,

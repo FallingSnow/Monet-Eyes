@@ -23,7 +23,8 @@ let pendingAuthentication = [];
 
 socket.oldEmit = socket.emit;
 socket.emit = function() {
-    let _self = this, args = arguments;
+    let _self = this,
+        args = arguments;
     if (requireAuthentication.indexOf(arguments[0]) > -1 && !socket.authenticated) {
         console.debug('[Socket]', arguments[0], 'requires authentication. Waiting for authentication...');
         pendingAuthentication.push(function() {
@@ -34,6 +35,9 @@ socket.emit = function() {
     }
     return this;
 };
+socket.on('disconnect', (reason) => {
+    console.log('Socket connection disconnected:', reason);
+});
 
 function receivedToken(token) {
     console.debug('[Socket] Retrieved token!');

@@ -9,60 +9,55 @@ class FullScreenImage extends React.PureComponent {
     constructor(props) {
         super(props);
         console.debug('[React] FullScreenImage loaded.', this.props);
-        this.run();
+        this.process();
     }
-    run() {
-        let _self = this;
-        this.processPath(this.props.location.pathname, function(image) {
-            _self.setState({
-                imageComponents: _self.state.imageComponents.concat([image])
-            });
-            // if (image.props.file.prev) {
-            //     _self.processPath(image.props.file.prev, function(image) {
-            //         _self.setState({
-            //             imageComponents: _self.state.imageComponents.concat([image])
-            //         });
-            //     });
-            // }
-        });
-    }
-    getImageData(src, cb) {
-        this.props.socket.emit('fileInfo', src, function(err, file) {
-            if (err)
-                return console.error(err);
-
-            cb(file);
-        });
-    }
-    state = {
-        imageComponents: []
-    };
-    processPath(path, cb) {
-        let _self = this;
-        this.getImageData(path, function(file) {
-            switch (file.extension) {
-                case '.flif':
-                    cb(<Flif fullscreen={true} key={file.name} quality={_self.props.quality} file={file}/>);
-                    break;
-                case '.jpg':
-                case 'jpeg':
-                    cb(<Jpeg fullscreen={true} key={file.name} file={file}/>);
-                    break;
-
-                default:
-                    console.warn('Unknown image file type', file.extension);
-                    break;
-            }
-        });
+    process() {
+        const type = getType(this.props.file.mime, this.props.file.extname);
+        switch (type) {
+            case 'jpeg':
+                this.setState({type: 'native', src: this.props.file.metadata.scaled.thumbnail});
+                break;
+            default:
+                console.warn('Unknown file type:', this.props.file.mime, this.props.file.extname);
+        }
     }
     render() {
+        let imageComponent;
+        if (this.state.type === 'native') {
+            imageComponent = <img src={this.state.src} alt=""/>;
+        } else {
+            // Set image component to canvas?
+        }
         return (
             <div className="fullscreen-container">
                 <div className="fullscreen-container-arrow fullscreen-container-arrow-left"><i className="fa fa-chevron-left"/></div>
-                {this.state.imageComponents}
+                {imageComponent}
                 <div className="fullscreen-container-arrow fullscreen-container-arrow-right"><i className="fa fa-chevron-right"/></div>
             </div>
         );
+    }
+    static propTypes = {
+        file: React.PropTypes.object.isRequired,
+        quality: React.PropTypes.number
+    }
+}
+
+function getType(mime, ext) {
+    switch (mime) {
+        case 'image/flif':
+            return 'flif';
+        case 'image/jpeg':
+            return 'jpeg';
+        default:
+            switch (ext) {
+                case '.flif':
+                    return 'flif';
+                case '.jpeg':
+                case '.jpg':
+                    return 'jpeg';
+                default:
+                    return null;
+            }
     }
 }
 

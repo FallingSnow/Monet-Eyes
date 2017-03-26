@@ -44,7 +44,7 @@ class ImageGrid extends React.PureComponent {
         this.props.socket.emit('file.metadata', directory, function(err, list) {
             if (err)
                 return console.error(err);
-                
+
             console.debug('[React] Directory list:', list);
             _self.props.socket.emit('file.metadata', list.content.list, (err, files) => {
                 console.log(err, files)
@@ -68,7 +68,7 @@ class ImageGrid extends React.PureComponent {
                                         }} onTouchTap={() => _self.props.goTo(f.path)}>
                                             <Jpeg style={{
                                                 width: 100 + '%'
-                                            }} quality={200} thumbnail={true} file={f}/>
+                                            }} quality={200} thumbnail={180} file={f}/>
                                         </div>
                                     );
                                     break;

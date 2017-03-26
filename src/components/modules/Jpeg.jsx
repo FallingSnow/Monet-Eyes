@@ -20,14 +20,22 @@ class Jpeg extends React.PureComponent {
         loading: true
     }
     componentWillMount() {
-        this.run();
+        this.setState({
+            file: this.props.file
+        }, this.run);
         window.addEventListener("resize", this.onResize);
+    }
+    shouldComponentUpdate(nextProps, nextState) {
+        return (nextState.src !== this.state.src);
     }
     run() {
         let _self = this;
-        this.src = this.props.file.path;
 
-        if (this.src.endsWith('.jpeg') || this.src.endsWith('.jpg')) {
+        if (this.state.file.path.endsWith('.jpeg') || this.state.file.path.endsWith('.jpg')) {
+
+            let highestResolutionAvaliable = getHighestKey(this.state.file.metadata.scaled);
+            this.setState({src: this.state.file.metadata.scaled[highestResolutionAvaliable]});
+
             if (this.props.thumbnail)
                 this.retrieve.thumbnail();
             else
@@ -39,7 +47,17 @@ class Jpeg extends React.PureComponent {
     }
     retrieve = {
         thumbnail: () => {
-            this.setState({src: this.props.file.metadata.scaled.thumbnail});
+            let _self = this;
+            if (this.props.thumbnail > 1) {
+                this.props.socket.emit('file.metadata', this.state.file.path, 'heavy', (err, file) => {
+                    _self.setState({
+                        file
+                    }, () => {
+                        let highestResolutionAvaliable = getHighestKey(_self.state.file.metadata.scaled);
+                        _self.setState({src: _self.state.file.metadata.scaled[highestResolutionAvaliable], loading: false});
+                    });
+                });
+            }
         },
         partial: () => {
             let _self = this;
@@ -108,6 +126,16 @@ class Jpeg extends React.PureComponent {
             </div>
         );
     }
+}
+
+function getHighestKey(obj) {
+    return Object.keys(obj).reduce(function(a, b) {
+        if (!Number.isInteger(b))
+            return a;
+        return obj[a] > obj[b]
+            ? a
+            : b
+    });
 }
 
 function mapStateToProps(state) {
